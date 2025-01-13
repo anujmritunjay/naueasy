@@ -1,3 +1,4 @@
+from fastapi import Request
 from models.user_model import User
 from schemas.user_schema import User as u_schema, Login
 from sqlalchemy.orm import Session
@@ -47,3 +48,21 @@ def log_in(payload:Login , db: Session):
         
     except Exception as err:
         raise UnicornException(str(err))
+    
+
+def me(request: Request):
+    try:
+        if hasattr(request.state, 'user'):
+            user = request.state.user
+            if user:
+                return {
+                    "success": True,
+                    'data': user
+                }
+            else:
+                raise UnicornException('Not authenticated.', 401)
+        else:
+            raise UnicornException('Not authenticated.', 401)
+    except Exception as err:
+        raise UnicornException(str(err))
+    

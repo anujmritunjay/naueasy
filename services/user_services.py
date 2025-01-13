@@ -14,3 +14,7 @@ def compare_password(password, db_pass):
 
 def generate_jwt(data):
     return jwt.encode(data, JWT_SECRET, algorithm = "HS256")
+
+def decode_jwt(token):
+    decoded_token = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    return decoded_token
