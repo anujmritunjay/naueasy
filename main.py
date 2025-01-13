@@ -1,5 +1,5 @@
 from fastapi import FastAPI,APIRouter, Request
-from routes import user_routes, events_routes
+from routes import user_routes, events_routes, attendees_routes
 import datetime
 import pytz
 from models.error_model import ErrorResponse
@@ -34,6 +34,7 @@ async def shutdown_event():
 api_router = APIRouter()
 app.include_router(user_routes.router, prefix="/user", tags=["User"])
 app.include_router(events_routes.router, prefix="/events", tags=["Events"])
+app.include_router(attendees_routes.router, prefix="/attendees", tags=["Attendees"])
 
 
 
