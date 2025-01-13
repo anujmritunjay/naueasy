@@ -25,7 +25,7 @@ def register_user(payload:u_schema , db: Session):
             "data": user
         }
     except Exception as e:
-        raise e
+        raise UnicornException(str(e))
     
 def log_in(payload:Login , db: Session):
     try:

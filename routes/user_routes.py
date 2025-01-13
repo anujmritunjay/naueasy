@@ -22,7 +22,7 @@ def log_in( payload: user_schema.Login, db: Session = Depends(get_db)):
     except Exception as err:
         raise err
     
-@router.post('/me')
+@router.get('/me')
 def me(request: Request, current_user = Depends(auth)):
     try:
        return user_controllers.me(request)

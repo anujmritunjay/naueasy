@@ -1,5 +1,5 @@
 from fastapi import FastAPI,APIRouter, Request
-from routes import user_routes
+from routes import user_routes, events_routes
 import datetime
 import pytz
 from models.error_model import ErrorResponse
@@ -24,7 +24,6 @@ async def startup_event():
     global startup_time
     current_time = datetime.datetime.now(pytz.utc)
     ist = pytz.timezone('Asia/Kolkata')
-
     startup_time = current_time.astimezone(ist).strftime("%d/%m/%Y, %H:%M:%S")
     print('Server Started: ', str(datetime.datetime.now()))
 @app.on_event("shutdown")
@@ -34,6 +33,7 @@ async def shutdown_event():
 
 api_router = APIRouter()
 app.include_router(user_routes.router, prefix="/user", tags=["User"])
+app.include_router(events_routes.router, prefix="/events", tags=["Events"])
 
 
 
