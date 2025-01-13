@@ -9,8 +9,8 @@ from config.database import engine, Base
 
 startup_time: datetime = None
 app = FastAPI(
-    title='wnc-api',
-    description='Wellncity api',
+    title='naueasy',
+    description='This is the assignment from the nauesy.',
 )
 
 @app.exception_handler(UnicornException)

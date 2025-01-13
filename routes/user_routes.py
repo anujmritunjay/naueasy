@@ -9,8 +9,14 @@ router = APIRouter()
 
 
 @router.post('/register')
-def register_user( payload: user_schema.User, db: Session = Depends(get_db),):
+def register_user( payload: user_schema.User, db: Session = Depends(get_db)):
     try:
        return user_controllers.register_user(payload, db)
     except Exception as err:
         raise UnicornException(str(err))
+@router.post('/log-in')
+def log_in( payload: user_schema.Login, db: Session = Depends(get_db)):
+    try:
+       return user_controllers.log_in(payload, db)
+    except Exception as err:
+        raise err
