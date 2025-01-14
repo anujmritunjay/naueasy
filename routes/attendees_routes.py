@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 from config.database import get_db
 from schemas import attendees_schema
@@ -29,3 +29,12 @@ def get_attendees(event_id: str, page: int = 1, limit: int = 10, current_user = 
         return attendees_controllers.get_attendees(event_id, db, page, limit)
     except Exception as err:
         raise UnicornException(str(err))
+
+@router.post('/bulk-checkin')
+async def bulk_checkin(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    try:
+        result = attendees_controllers.bulk_checkin(file, db)
+        return result
+    except UnicornException as e:
+        raise UnicornException(str(e))
+

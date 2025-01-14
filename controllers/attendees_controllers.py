@@ -1,8 +1,11 @@
+from fastapi import File, UploadFile
 from schemas.attendees_schema import AttendeeRegister, UpdateCheckInStatus
 from models.attendees_model import Attendee
 from models.event_modal import Event
 from sqlalchemy.orm import Session
 
+import csv
+from io import StringIO
 from utilities.error_handler import UnicornException
 
 
@@ -97,3 +100,42 @@ def get_attendees(event_id, db: Session, page: int = 1, limit: int = 10):
     except Exception as e:
         raise UnicornException(str(e))
 
+
+
+def bulk_checkin(file, db: Session):
+    try:
+        contents = file.file.read()
+        csv_file = StringIO(contents.decode("utf-8"))
+        reader = csv.DictReader(csv_file)
+
+        updated_attendees = []
+        errors = []
+
+        for row in reader:
+            email = row.get('email')
+            check_in_status = row.get('check_in_status')
+
+            if not email or check_in_status not in ['True', 'False']:
+                errors.append(f"Invalid data in row: {row}")
+                continue
+
+            attendee = db.query(Attendee).filter(Attendee.email == email).first()
+
+            if attendee:
+                attendee.check_in_status = check_in_status == 'True'
+                db.commit()
+                updated_attendees.append({
+                    "attendee_id": attendee.attendee_id,
+                    "email": attendee.email,
+                    "check_in_status": attendee.check_in_status
+                })
+            else:
+                errors.append(f"Attendee with email {email} not found.")
+
+        if errors:
+            raise UnicornException("\n".join(errors))
+        
+        # Return a serializable response
+        return {"success": True, "message": "All check-in completed", "updated_attendees": updated_attendees}
+    except Exception as e:
+        raise UnicornException(str(e))
