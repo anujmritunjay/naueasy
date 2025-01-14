@@ -12,6 +12,10 @@ def attendee_register(payload:AttendeeRegister , db: Session):
         event = db.query(Event).filter(Event.event_id == payload.event_id).first()
         if not event:
             raise UnicornException("Event not found.")
+        attendees = event.attendees
+        if (attendees and len(attendees)) >= event.max_attendees:
+            raise UnicornException("No seats available for the booking.")
+
         new_attendee = Attendee(
         first_name=payload.first_name,
         last_name=payload.last_name,

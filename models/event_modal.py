@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from enum import Enum as PyEnum
 from config.database import Base
 
@@ -23,4 +24,7 @@ class Event(Base):
     location = Column(String(255), nullable=True)
     max_attendees = Column(Integer, nullable=False, default=0)
     status = Column(Enum(EventStatus), nullable=False, default=EventStatus.SCHEDULED)
+
+
+    attendees = relationship("Attendee", backref="event", cascade="all, delete-orphan")
 
