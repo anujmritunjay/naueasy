@@ -22,3 +22,10 @@ def update_event(attendee_id: int, payload: attendees_schema.UpdateCheckInStatus
        return attendees_controllers.check_in_status(attendee_id, payload, db)
     except Exception as err:
         raise UnicornException(str(err))
+
+@router.get('/get-attendees/{event_id}')
+def get_attendees(event_id: str, page: int = 1, limit: int = 10, current_user = Depends(auth), db: Session = Depends(get_db)):
+    try:
+        return attendees_controllers.get_attendees(event_id, db, page, limit)
+    except Exception as err:
+        raise UnicornException(str(err))
