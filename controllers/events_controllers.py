@@ -2,6 +2,8 @@ from schemas.event_schema import EventCreate
 from models.event_modal import Event, EventStatus
 from sqlalchemy.orm import Session
 from datetime import datetime
+from sqlalchemy import and_
+
 
 from utilities.error_handler import UnicornException
 
@@ -54,3 +56,42 @@ def update_event(event_id, payload: EventCreate, db: Session):
         }
     except Exception as e:
         raise UnicornException(str(e))
+    
+def get_all_events(db: Session, status: str = None, location: str = None, start_date: datetime = None, end_date: datetime = None,   page: int = 1, page_size: int = 10,):
+    try:
+        query = db.query(Event)
+        
+        if status:
+            query = query.filter(Event.status == status)
+        if location:
+            query = query.filter(Event.location.ilike(f"%{location}%"))
+        if start_date:
+            query = query.filter(Event.start_time >= start_date)
+        if end_date:
+            query = query.filter(Event.end_time <= end_date)
+
+        offset = (page - 1) * page_size
+        query = query.offset(offset).limit(page_size)
+
+        events = query.all()
+
+        total_count = db.query(Event).filter(
+            and_(
+                (Event.status == status if status else True),
+                (Event.location.ilike(f"%{location}%") if location else True),
+                (Event.start_time >= start_date if start_date else True),
+                (Event.end_time <= end_date if end_date else True)
+            )
+        ).count()
+        
+        return {
+            "success": True,
+            "data": events if events else [],
+            "total_count": total_count,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total_count + page_size - 1) // page_size  
+        }
+    except Exception as e:
+        raise UnicornException(str(e))
+
